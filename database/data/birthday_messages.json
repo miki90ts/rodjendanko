@@ -1,0 +1,56 @@
+{
+  "friendly": {
+    "tone": "casual",
+    "openings": ["Srećan rođendan, {{nickname}}!", "Hej {{first_name}}, danas je tvoj dan!", "Najlepše rođendanske želje za tebe, {{first_name}}!", "Živeli za još jednu sjajnu godinu, {{nickname}}!"],
+    "wishes": ["Neka ti narednih dvanaest meseci donesu dobre ljude, lepe avanture i mnogo razloga za osmeh.", "Želim ti dane pune smeha, spontanih planova i uspomena koje se dugo prepričavaju.", "Neka ti se ostvare želje koje čuvaš za sebe, a svaki novi dan bude bar malo poseban.", "Želim ti zdravlje, mir i dovoljno slobodnog vremena za sve što istinski voliš."],
+    "closings": ["Uživaj do poslednje mrvice torte! 🎂", "Slavimo te danas kako dolikuje! 🎉", "Veliki zagrljaj!", "Neka zabava počne! 🥳"]
+  },
+  "family": {
+    "tone": "warm",
+    "openings": ["Srećan rođendan, dragi/a {{first_name}}!", "Danas slavimo tebe, {{nickname}}, i svu radost koju donosiš našoj porodici.", "Od srca ti želim srećan rođendan, {{first_name}}!", "Još jedan poseban datum za našu porodicu — tvoj rođendan!"],
+    "wishes": ["Neka te kroz život prate zdravlje, sigurnost i ljubav ljudi koji su uvek uz tebe.", "Hvala ti za toplinu, razumevanje i sve male trenutke zbog kojih je dom najlepše mesto.", "Želim ti mir u srcu, snagu za svaki izazov i mnogo zajedničkih, radosnih trenutaka.", "Neka ti ova godina vrati svu dobrotu koju nesebično deliš sa nama."],
+    "closings": ["Volimo te beskrajno. ❤️", "Uz tebe smo danas i svakog dana.", "Radujemo se svim uspomenama koje tek stvaramo.", "Šaljemo ti najtopliji zagrljaj!"]
+  },
+  "partner": {
+    "tone": "emotional",
+    "openings": ["Srećan rođendan osobi koja moje dane čini lepšim.", "Srećan rođendan, ljubavi moja!", "Danas slavimo tvoje divno srce, {{first_name}}.", "Za moj omiljeni osmeh — najsrećniji rođendan!"],
+    "wishes": ["Želim da zajedno ostvarimo još mnogo snova i ispunimo godine nežnošću, smehom i putovanjima.", "Uz tebe svaki običan dan postaje uspomena; neka ovaj poseban bude baš onakav kakav zaslužuješ.", "Neka ti se vrati sva ljubav kojom ulepšavaš moj svet, danas i u svakom danu koji dolazi.", "Želim ti hrabrost za velike želje, spokoj u malim stvarima i mene uz tebe kroz sve."],
+    "closings": ["Volim te više nego što staje u jednu poruku. ❤️", "Jedva čekam da proslavimo zajedno.", "Tvoje zauvek.", "Za nas i sve lepo što dolazi. 🥂"]
+  },
+  "colleague": {
+    "tone": "warm",
+    "openings": ["Srećan rođendan, {{first_name}}!", "Sve najbolje povodom rođendana, {{first_name}}!", "Najlepše želje za tvoj poseban dan!", "Danas mejlovi mogu da sačekaju — srećan rođendan!"],
+    "wishes": ["Želim ti mnogo uspeha, inspirativnih projekata i odličan balans između posla i svega što voliš.", "Neka ti nova godina donese zanimljive prilike, dobre saradnike i zaslužena priznanja.", "Želim ti energiju za nove poduhvate i dovoljno mirnih dana da uživaš u rezultatima svog rada.", "Neka svaki poslovni izazov postane prilika, a privatni trenuci budu ispunjeni zadovoljstvom."],
+    "closings": ["Uživaj u zasluženom slavlju!", "Sjajan dan i još bolja godina pred tobom!", "Živeli za nove uspehe!", "Lep provod želi ti ekipa! 🎉"]
+  },
+  "business": {
+    "tone": "formal",
+    "openings": ["Poštovani/a {{first_name}}, srećan rođendan.", "Primite naše iskrene čestitke povodom rođendana.", "Sa zadovoljstvom Vam upućujemo najlepše rođendanske želje.", "Srećan rođendan i sve najbolje, {{first_name}} {{last_name}}."],
+    "wishes": ["Želimo Vam dobro zdravlje, lično zadovoljstvo i mnogo uspeha u svim budućim poduhvatima.", "Neka Vam predstojeća godina donese stabilnost, nove mogućnosti i ostvarenje važnih ciljeva.", "Želimo Vam uspešnu godinu ispunjenu profesionalnim dostignućima i lepim privatnim trenucima.", "Neka Vas prate energija, mudre odluke i zadovoljstvo postignutim rezultatima."],
+    "closings": ["Srdačan pozdrav.", "Sa iskrenim poštovanjem.", "Sve najbolje u godini pred Vama.", "Želimo Vam prijatan dan."]
+  },
+  "funny": {
+    "tone": "funny",
+    "openings": ["Srećan rođendan, {{nickname}} — godine su samo broj, ali torta je ozbiljna stvar!", "Čestitam, {{first_name}}! Uspešno si završio/la još jedan krug oko Sunca.", "Danas se kalorije ne broje, a sveće se pale na sopstvenu odgovornost!", "Srećan rođendan! Ne brini zbog godina — još uvek imaš manje bora nego dobrih priča."],
+    "wishes": ["Želim ti pun frižider, prazan inbox i dovoljno energije da proslava potraje duže od baterije na telefonu.", "Neka ti Wi‑Fi bude brz, kafa jaka, a ljudi oko tebe dovoljno mudri da donesu poklone.", "Želim ti godinu bez ranih sastanaka, sa mnogo putovanja i bar jednim neočekivanim produženim vikendom.", "Neka problemi budu mali kao parče torte koje svi tvrde da žele, a sreća velika kao ono koje stvarno uzmu."],
+    "closings": ["Sad ozbiljno: uživaj maksimalno! 🥳", "Torta prvo, odrasle obaveze sutra.", "Nazdravlje i bez brojanja svećica!", "Ostani mlad/a bar u grupnom četu! 🎂"]
+  },
+  "emotional": {
+    "tone": "emotional",
+    "openings": ["Srećan rođendan, {{first_name}}. Danas želim da znaš koliko značiš.", "Neki ljudi ostave trag u svakom danu — ti si jedan/na od njih.", "Tvoj rođendan je lep podsetnik koliko smo srećni što te imamo.", "Danas slavim tvoju dobrotu, hrabrost i sve ono što te čini jedinstvenim/om."],
+    "wishes": ["Neka ti život nežno vrati svaku radost koju si pružio/la drugima i donese mir koji zaslužuješ.", "Želim ti da u novoj godini života budeš okružen/a ljudima pred kojima uvek možeš biti potpuno svoj/a.", "Neka te prate snaga kada je teško, zahvalnost kada je lepo i ljubav u svim danima između.", "Želim ti da prepoznaš koliko si već postigao/la i da sa verom zakoračiš ka svemu što tek dolazi."],
+    "closings": ["Od srca, danas i uvek. ❤️", "Čuvaj svoj sjaj.", "Hvala ti što postojiš.", "Najlepše tek dolazi."]
+  },
+  "short": {
+    "tone": "short",
+    "openings": ["Srećan rođendan, {{first_name}}!", "Najlepše želje, {{nickname}}!", "Danas je tvoj dan!", "Za tebe i novu godinu života — živeli!"],
+    "wishes": ["Mnogo zdravlja, radosti i uspeha!", "Neka ti se ostvari baš ono što najviše želiš.", "Sjajnih ljudi, velikih osmeha i lepih dana.", "Mir u srcu, osmeh na licu i sreća u koraku."],
+    "closings": ["Uživaj! 🎉", "Veliki zagrljaj!", "Sve najbolje!", "Proslavi kako treba! 🎂"]
+  },
+  "universal": {
+    "tone": "warm",
+    "openings": ["Srećan rođendan, {{first_name}}!", "Najiskrenije čestitke za tvoj rođendan!", "Neka ovaj poseban dan bude početak divne godine.", "Danas slavimo još jedno lepo poglavlje tvog života."],
+    "wishes": ["Želim ti dobro zdravlje, unutrašnji mir, uspeh u onome što radiš i ljude sa kojima je radost veća.", "Neka ti svaki mesec donese bar jedan razlog za ponos i mnogo malih razloga za sreću.", "Želim ti hrabrost da biraš ono što te ispunjava i strpljenje da uživaš u putu do cilja.", "Neka godina pred tobom bude ispunjena lepim iznenađenjima, iskrenim susretima i ostvarenim planovima."],
+    "closings": ["Sve najbolje od srca!", "Uživaj u svakom trenutku!", "Za još mnogo lepih godina! 🥂", "Neka ti današnji osmeh traje cele godine."]
+  }
+}

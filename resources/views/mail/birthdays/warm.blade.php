@@ -1,0 +1,1 @@
+@php($background='#fff1f2') @php($card='#fffbfb') @php($header='#e11d48') @php($headerText='#ffffff') @php($textColor='#4c2730') @php($muted='#956b75') @php($accent='#fb7185') @php($border='#fecdd3') @php($radius='24px') @php($emoji='💝') @include('mail.birthdays.layout')
