@@ -2,6 +2,7 @@
 import { Head, router, useForm } from '@inertiajs/vue3';
 import { Check, Copy, Pencil, Plus, Search, Trash2, X } from '@lucide/vue';
 import { reactive, ref, watch } from 'vue';
+import DeleteConfirmationModal from '@/components/DeleteConfirmationModal.vue';
 import PaginationNav from '@/components/PaginationNav.vue';
 import {
     messageCategoryOptions,
@@ -28,6 +29,8 @@ const showCreate = ref(false);
 const editingId = ref<number | null>(null);
 const copiedMessageId = ref<number | null>(null);
 const copyErrorMessageId = ref<number | null>(null);
+const messageToDelete = ref<BirthdayMessage | null>(null);
+const deleting = ref(false);
 const form = useForm({
     name: '',
     category: 'universal',
@@ -76,9 +79,17 @@ function openCreate(): void {
     showCreate.value = true;
 }
 function remove(message: BirthdayMessage): void {
-    if (confirm('Obriši ovu poruku?')) {
-        router.delete(`/messages/${message.id}`);
-    }
+    messageToDelete.value = message;
+}
+function confirmRemove(): void {
+    if (!messageToDelete.value) return;
+
+    deleting.value = true;
+    router.delete(`/messages/${messageToDelete.value.id}`, {
+        preserveScroll: true,
+        onSuccess: () => (messageToDelete.value = null),
+        onFinish: () => (deleting.value = false),
+    });
 }
 function copyWithFallback(text: string): boolean {
     const input = document.createElement('textarea');
@@ -337,5 +348,14 @@ defineOptions({
                 </div>
             </form>
         </div>
+        <DeleteConfirmationModal
+            :model-value="messageToDelete !== null"
+            title="Obriši ličnu poruku?"
+            :description="`Poruka „${messageToDelete?.name || 'Bez naziva'}“ biće trajno uklonjena iz tvoje biblioteke.`"
+            confirm-label="Obriši poruku"
+            :processing="deleting"
+            @update:model-value="(open) => !open && (messageToDelete = null)"
+            @confirm="confirmRemove"
+        />
     </main>
 </template>

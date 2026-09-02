@@ -5,6 +5,7 @@ import {
     History,
     LayoutGrid,
     MessageCircleHeart,
+    PartyPopper,
     Settings2,
 } from '@lucide/vue';
 import AppLogo from '@/components/AppLogo.vue';
@@ -30,6 +31,7 @@ const mainNavItems: NavItem[] = [
         icon: LayoutGrid,
     },
     { title: 'Rođendani', href: '/birthdays', icon: CakeSlice },
+    { title: 'Pozivnice', href: '/invitations', icon: PartyPopper },
     { title: 'Poruke', href: '/messages', icon: MessageCircleHeart },
     { title: 'Istorija', href: '/deliveries', icon: History },
     { title: 'Podešavanja', href: '/settings/birthdays', icon: Settings2 },

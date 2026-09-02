@@ -8,6 +8,8 @@ import {
     Phone,
     Trash2,
 } from '@lucide/vue';
+import { ref } from 'vue';
+import DeleteConfirmationModal from '@/components/DeleteConfirmationModal.vue';
 import {
     messageModeOptions,
     optionLabel,
@@ -15,10 +17,13 @@ import {
 } from '@/lib/birthdayOptions';
 import type { BirthdayContact } from '@/types';
 const props = defineProps<{ contact: BirthdayContact }>();
+const deleteModalOpen = ref(false);
+const deleting = ref(false);
 function destroyContact(): void {
-    if (confirm(`Obriši kontakt ${props.contact.display_name}?`)) {
-        router.delete(`/birthdays/${props.contact.id}`);
-    }
+    deleting.value = true;
+    router.delete(`/birthdays/${props.contact.id}`, {
+        onFinish: () => (deleting.value = false),
+    });
 }
 defineOptions({
     layout: {
@@ -70,8 +75,9 @@ defineOptions({
                                 class="btn-secondary"
                                 ><Pencil class="size-4" /> Izmeni</Link
                             ><button
-                                class="btn-secondary text-rose-600"
-                                @click="destroyContact"
+                                class="btn-secondary cursor-pointer text-rose-600"
+                                title="Obriši kontakt"
+                                @click="deleteModalOpen = true"
                             >
                                 <Trash2 class="size-4" />
                             </button>
@@ -142,5 +148,13 @@ defineOptions({
                 </div>
             </section>
         </div>
+        <DeleteConfirmationModal
+            v-model="deleteModalOpen"
+            title="Obriši rođendan?"
+            :description="`Kontakt „${contact.display_name}“ i svi njegovi podsetnici i istorija biće trajno obrisani.`"
+            confirm-label="Obriši kontakt"
+            :processing="deleting"
+            @confirm="destroyContact"
+        />
     </main>
 </template>

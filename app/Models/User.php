@@ -65,6 +65,11 @@ class User extends Authenticatable implements PasskeyUser
         return $this->hasMany(BirthdayDelivery::class);
     }
 
+    public function birthdayInvitations(): HasMany
+    {
+        return $this->hasMany(BirthdayInvitation::class);
+    }
+
     public function birthdaySettings(): HasOne
     {
         return $this->hasOne(UserBirthdaySetting::class);

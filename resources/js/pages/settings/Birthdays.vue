@@ -2,6 +2,7 @@
 import { Head, useForm } from '@inertiajs/vue3';
 import EmailTemplateSelector from '@/components/birthdays/EmailTemplateSelector.vue';
 import HeadingSmall from '@/components/HeadingSmall.vue';
+import LocalizedTimePicker from '@/components/LocalizedTimePicker.vue';
 import {
     messageCategoryOptions,
     messageModeOptions,
@@ -62,10 +63,10 @@ function submit(): void {
                             " /></label
                     ><label class="space-y-2"
                         ><span class="text-sm font-medium">Vreme</span
-                        ><input
+                        ><LocalizedTimePicker
                             v-model="form.default_reminder_time"
-                            type="time"
-                            class="field"
+                            required
+                            placeholder="Vreme podsetnika"
                     /></label>
                 </div>
             </section>
@@ -88,10 +89,10 @@ function submit(): void {
                 <div class="grid gap-4 sm:grid-cols-2">
                     <label class="space-y-2"
                         ><span class="text-sm font-medium">Vreme slanja</span
-                        ><input
+                        ><LocalizedTimePicker
                             v-model="form.default_send_time"
-                            type="time"
-                            class="field" /></label
+                            required
+                            placeholder="Vreme slanja" /></label
                     ><label class="space-y-2"
                         ><span class="text-sm font-medium">Način poruke</span
                         ><select

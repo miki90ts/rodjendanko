@@ -1,0 +1,9 @@
+{
+    "Profile updated.": "Profil je uspešno ažuriran.",
+    "Password updated.": "Lozinka je uspešno promenjena.",
+    "The provided password does not match your current password.": "Uneta lozinka se ne podudara sa trenutnom lozinkom.",
+    "The given data was invalid.": "Uneti podaci nisu ispravni.",
+    "Unauthenticated.": "Morate biti prijavljeni.",
+    "This action is unauthorized.": "Nemate dozvolu za ovu radnju.",
+    "Too Many Attempts.": "Previše pokušaja. Pokušajte ponovo kasnije."
+}

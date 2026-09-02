@@ -11,6 +11,8 @@ import {
 import { computed, ref } from 'vue';
 import EmailTemplateSelector from '@/components/birthdays/EmailTemplateSelector.vue';
 import InputError from '@/components/InputError.vue';
+import LocalizedDatePicker from '@/components/LocalizedDatePicker.vue';
+import LocalizedTimePicker from '@/components/LocalizedTimePicker.vue';
 import {
     messageCategoryOptions,
     messageModeOptions,
@@ -219,11 +221,10 @@ function submit(): void {
                 /></label>
                 <label class="space-y-2"
                     ><span class="text-sm font-medium">Datum rođenja *</span
-                    ><input
+                    ><LocalizedDatePicker
                         v-model="form.birth_date"
                         required
-                        type="date"
-                        class="field" /><InputError
+                        placeholder="Izaberi datum rođenja" /><InputError
                         :message="form.errors.birth_date"
                 /></label>
                 <label class="space-y-2"
@@ -369,10 +370,10 @@ function submit(): void {
                         <label class="space-y-2"
                             ><span class="text-sm font-medium"
                                 >Vreme slanja</span
-                            ><input
+                            ><LocalizedTimePicker
                                 v-model="form.settings.send_time"
-                                type="time"
-                                class="field" /></label
+                                required
+                                placeholder="Vreme slanja" /></label
                         ><label class="space-y-2"
                             ><span class="text-sm font-medium">Kanal</span
                             ><select
