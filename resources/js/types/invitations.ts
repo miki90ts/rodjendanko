@@ -11,6 +11,18 @@ export interface InvitationGuest {
     message?: string | null;
     responded_at?: string | null;
     sent_at?: string | null;
+    send_count?: number;
+}
+
+export interface InvitationSendBatch {
+    id: number;
+    attempt_number: number;
+    recipient_count: number;
+    successful_count: number;
+    failed_count: number;
+    status: 'pending' | 'completed' | 'partial' | 'failed';
+    queued_at: string;
+    completed_at: string | null;
 }
 
 export interface BirthdayInvitation {
@@ -44,6 +56,9 @@ export interface BirthdayInvitation {
     guests_count?: number;
     attending_count?: number;
     pending_count?: number;
+    send_batches?: InvitationSendBatch[];
+    send_batches_count?: number;
+    max_send_attempts?: number;
 }
 
 export interface InvitationTemplateOption {

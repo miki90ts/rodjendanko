@@ -82,7 +82,9 @@ function remove(message: BirthdayMessage): void {
     messageToDelete.value = message;
 }
 function confirmRemove(): void {
-    if (!messageToDelete.value) return;
+    if (!messageToDelete.value) {
+        return;
+    }
 
     deleting.value = true;
     router.delete(`/messages/${messageToDelete.value.id}`, {

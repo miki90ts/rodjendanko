@@ -8,6 +8,7 @@ use App\Jobs\SendBirthdayInvitationEmail;
 use App\Mail\BirthdayInvitationMail;
 use App\Models\BirthdayInvitation;
 use App\Models\BirthdayInvitationGuest;
+use App\Models\BirthdayInvitationSendBatch;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Bus;
@@ -38,6 +39,8 @@ class BirthdayInvitationTest extends TestCase
         $this->assertSame(2, $invitation->guests()->count());
         $this->assertSame('ana@example.com', $invitation->guests()->orderBy('id')->value('email'));
         $this->assertSame(0, $invitation->guests()->whereNotNull('sent_at')->count());
+        $this->assertSame(1, $invitation->sendBatches()->count());
+        $this->assertSame(2, $invitation->sendBatches()->firstOrFail()->recipient_count);
         Bus::assertDispatched(SendBirthdayInvitationEmail::class, 2);
     }
 
@@ -146,12 +149,50 @@ class BirthdayInvitationTest extends TestCase
         Mail::fake();
         $invitation = $this->invitation(User::factory()->create());
         $guest = $this->guest($invitation);
+        $batch = $this->sendBatch($invitation, 1, 1);
 
         $this->assertNull($guest->sent_at);
-        (new SendBirthdayInvitationEmail($guest->id))->handle();
+        (new SendBirthdayInvitationEmail($guest->id, $batch->id))->handle();
 
         Mail::assertSent(BirthdayInvitationMail::class, fn ($mail) => $mail->guest->is($guest));
         $this->assertNotNull($guest->refresh()->sent_at);
+        $this->assertSame(1, $guest->send_count);
+        $this->assertSame('completed', $batch->refresh()->status);
+        $this->assertSame(1, $batch->successful_count);
+        $this->assertNotNull($batch->completed_at);
+    }
+
+    public function test_invitation_cannot_be_sent_more_than_three_times(): void
+    {
+        Bus::fake();
+        $user = User::factory()->create();
+        $invitation = $this->invitation($user);
+        $this->guest($invitation);
+        $this->sendBatch($invitation, 1, 1);
+        $this->sendBatch($invitation, 2, 1);
+        $this->sendBatch($invitation, 3, 1);
+
+        $this->actingAs($user)
+            ->post(route('invitations.send', $invitation))
+            ->assertInvalid(['send']);
+
+        $this->assertSame(3, $invitation->sendBatches()->count());
+        Bus::assertNotDispatched(SendBirthdayInvitationEmail::class);
+    }
+
+    public function test_invitation_local_time_is_stored_as_utc(): void
+    {
+        $user = User::factory()->create();
+        $payload = $this->payload();
+        $payload['starts_at'] = '2026-12-20T18:30';
+        $payload['ends_at'] = '2026-12-20T21:00';
+        $payload['reply_deadline'] = '2026-12-15';
+
+        $this->actingAs($user)->post(route('invitations.store'), $payload)->assertRedirect();
+
+        $invitation = $user->birthdayInvitations()->firstOrFail();
+        $this->assertSame('2026-12-20 17:30:00', $invitation->starts_at->utc()->format('Y-m-d H:i:s'));
+        $this->assertSame('2026-12-20 20:00:00', $invitation->ends_at->utc()->format('Y-m-d H:i:s'));
     }
 
     private function invitation(User $user, array $attributes = []): BirthdayInvitation
@@ -186,6 +227,18 @@ class BirthdayInvitationTest extends TestCase
             'name' => 'Marko',
             'email' => 'marko@example.com',
             ...$attributes,
+        ]);
+    }
+
+    private function sendBatch(
+        BirthdayInvitation $invitation,
+        int $attempt,
+        int $recipients,
+    ): BirthdayInvitationSendBatch {
+        return $invitation->sendBatches()->create([
+            'attempt_number' => $attempt,
+            'recipient_count' => $recipients,
+            'queued_at' => now(),
         ]);
     }
 

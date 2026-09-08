@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { Head, Link, router } from '@inertiajs/vue3';
+import { Head, Link, router, usePage } from '@inertiajs/vue3';
 import {
     Check,
     Copy,
@@ -12,14 +12,27 @@ import {
     Users,
     XCircle,
 } from '@lucide/vue';
-import { computed, ref } from 'vue';
+import { computed, onMounted, onUnmounted, ref } from 'vue';
 import DeleteConfirmationModal from '@/components/DeleteConfirmationModal.vue';
+import ResendInvitationModal from '@/components/invitations/ResendInvitationModal.vue';
 import type { BirthdayInvitation, RsvpStatus } from '@/types';
 
 const props = defineProps<{ invitation: BirthdayInvitation }>();
+const page = usePage();
 const copied = ref(false);
 const deleteModalOpen = ref(false);
 const deleting = ref(false);
+const sendModalOpen = ref(false);
+const sending = ref(false);
+const sendAttempts = computed(() => props.invitation.send_batches_count ?? 0);
+const maxSendAttempts = computed(() => props.invitation.max_send_attempts ?? 3);
+const sendLimitReached = computed(
+    () => sendAttempts.value >= maxSendAttempts.value,
+);
+const latestBatch = computed(() => props.invitation.send_batches?.[0] ?? null);
+const sendError = computed(
+    () => (page.props.errors as Record<string, string | undefined>).send,
+);
 
 const statusConfig: Record<RsvpStatus, { label: string; class: string }> = {
     pending: {
@@ -72,12 +85,60 @@ const copyPublicLink = async (): Promise<void> => {
 };
 
 const sendInvitations = (): void => {
+    sending.value = true;
     router.post(
         `/invitations/${props.invitation.id}/send`,
         {},
-        { preserveScroll: true },
+        {
+            preserveScroll: true,
+            onSuccess: () => (sendModalOpen.value = false),
+            onFinish: () => (sending.value = false),
+        },
     );
 };
+
+const requestSend = (): void => {
+    if (sendLimitReached.value) {
+        return;
+    }
+
+    if (sendAttempts.value > 0) {
+        sendModalOpen.value = true;
+    } else {
+        sendInvitations();
+    }
+};
+
+const batchStatusLabel = (status: string): string =>
+    ({
+        pending: 'Slanje je u toku',
+        completed: 'Uspešno završeno',
+        partial: 'Delimično poslato',
+        failed: 'Slanje nije uspelo',
+    })[status] ?? 'Nepoznat status';
+
+const formatShortDate = (value: string): string =>
+    new Intl.DateTimeFormat('sr-Latn-RS', {
+        dateStyle: 'medium',
+        timeStyle: 'short',
+        timeZone: props.invitation.timezone,
+    }).format(new Date(value));
+
+let statusPoll: ReturnType<typeof window.setInterval> | null = null;
+
+onMounted(() => {
+    statusPoll = window.setInterval(() => {
+        if (latestBatch.value?.status === 'pending') {
+            router.reload({ only: ['invitation'] });
+        }
+    }, 2500);
+});
+
+onUnmounted(() => {
+    if (statusPoll !== null) {
+        window.clearInterval(statusPoll);
+    }
+});
 
 const removeInvitation = (): void => {
     deleting.value = true;
@@ -137,20 +198,42 @@ defineOptions({
                     >
                     <button
                         class="btn-primary cursor-pointer disabled:cursor-not-allowed disabled:opacity-50"
-                        :disabled="!invitation.is_published"
+                        :disabled="
+                            !invitation.is_published ||
+                            sendLimitReached ||
+                            sending
+                        "
                         :title="
                             invitation.is_published
-                                ? 'Pošalji pozivnicu svim gostima'
+                                ? sendLimitReached
+                                    ? 'Pozivnica je poslata maksimalna 3 puta'
+                                    : 'Pošalji pozivnicu svim gostima'
                                 : 'Najpre aktiviraj javnu stranicu u izmeni pozivnice'
                         "
-                        @click="sendInvitations"
+                        @click="requestSend"
                     >
-                        <Send class="size-4" /> Pošalji svima
+                        <Send class="size-4" />
+                        {{
+                            sending
+                                ? 'Pokretanje…'
+                                : sendLimitReached
+                                  ? 'Limit 3/3'
+                                  : sendAttempts
+                                    ? 'Pošalji ponovo'
+                                    : 'Pošalji svima'
+                        }}
                     </button>
                 </div>
             </header>
 
-            <section class="grid gap-5 sm:grid-cols-2 xl:grid-cols-4">
+            <div
+                v-if="sendError"
+                class="rounded-2xl border border-rose-200 bg-rose-50 px-5 py-4 text-sm font-semibold text-rose-700 dark:border-rose-900 dark:bg-rose-950/40 dark:text-rose-300"
+            >
+                {{ sendError }}
+            </div>
+
+            <section class="grid gap-5 sm:grid-cols-2 xl:grid-cols-5">
                 <div
                     class="celebration-card rounded-3xl border bg-white p-5 shadow-sm dark:bg-slate-950"
                 >
@@ -194,6 +277,55 @@ defineOptions({
                             ).length ?? 0
                         }}
                     </p>
+                </div>
+                <div
+                    class="celebration-card rounded-3xl border bg-white p-5 shadow-sm dark:bg-slate-950"
+                >
+                    <Send class="size-5 text-blue-600" />
+                    <p class="mt-4 text-sm text-slate-500">Slanja pozivnice</p>
+                    <p class="mt-1 text-3xl font-black">
+                        {{ sendAttempts }}/{{ maxSendAttempts }}
+                    </p>
+                    <p v-if="latestBatch" class="mt-1 text-xs text-slate-500">
+                        {{ batchStatusLabel(latestBatch.status) }}
+                    </p>
+                </div>
+            </section>
+
+            <section
+                v-if="invitation.send_batches?.length"
+                class="celebration-card rounded-3xl border bg-white p-5 shadow-sm dark:bg-slate-950"
+            >
+                <div class="mb-4">
+                    <h2 class="text-lg font-black">Istorija slanja</h2>
+                    <p class="text-sm text-slate-500">
+                        Pozivnica se može poslati najviše tri puta.
+                    </p>
+                </div>
+                <div class="grid gap-3 md:grid-cols-3">
+                    <div
+                        v-for="batch in invitation.send_batches"
+                        :key="batch.id"
+                        class="rounded-2xl border bg-slate-50 p-4 dark:bg-slate-900"
+                    >
+                        <div class="flex items-center justify-between gap-3">
+                            <strong>Slanje {{ batch.attempt_number }}/3</strong>
+                            <span class="text-xs text-slate-500">
+                                {{ formatShortDate(batch.queued_at) }}
+                            </span>
+                        </div>
+                        <p
+                            class="mt-2 text-sm text-slate-600 dark:text-slate-300"
+                        >
+                            {{ batchStatusLabel(batch.status) }} · uspešno
+                            {{ batch.successful_count }}/{{
+                                batch.recipient_count
+                            }}
+                            <template v-if="batch.failed_count">
+                                · neuspešno {{ batch.failed_count }}
+                            </template>
+                        </p>
+                    </div>
                 </div>
             </section>
 
@@ -284,6 +416,23 @@ defineOptions({
                                 >
                                     {{ guest.email }}
                                 </p>
+                                <p class="mt-1 text-xs text-slate-400">
+                                    <template v-if="guest.send_count">
+                                        Email poslat {{ guest.send_count }}
+                                        {{
+                                            guest.send_count === 1
+                                                ? 'put'
+                                                : 'puta'
+                                        }}
+                                        <template v-if="guest.sent_at">
+                                            ·
+                                            {{ formatShortDate(guest.sent_at) }}
+                                        </template>
+                                    </template>
+                                    <template v-else
+                                        >Email još nije poslat</template
+                                    >
+                                </p>
                                 <p
                                     v-if="guest.message"
                                     class="mt-2 rounded-xl bg-slate-50 p-3 text-sm text-slate-600 italic dark:bg-slate-900"
@@ -335,6 +484,13 @@ defineOptions({
                 confirm-label="Obriši pozivnicu"
                 :processing="deleting"
                 @confirm="removeInvitation"
+            />
+            <ResendInvitationModal
+                v-model="sendModalOpen"
+                :previous-attempts="sendAttempts"
+                :guest-count="invitation.guests?.length ?? 0"
+                :processing="sending"
+                @confirm="sendInvitations"
             />
         </div>
     </main>

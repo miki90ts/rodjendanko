@@ -6,12 +6,14 @@ use App\Enums\InvitationTemplate;
 use App\Http\Requests\StoreBirthdayInvitationRequest;
 use App\Jobs\SendBirthdayInvitationEmail;
 use App\Models\BirthdayInvitation;
+use App\Models\BirthdayInvitationSendBatch;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
+use Illuminate\Validation\ValidationException;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -22,6 +24,7 @@ class BirthdayInvitationController extends Controller
         $invitations = $request->user()->birthdayInvitations()
             ->withCount([
                 'guests',
+                'sendBatches',
                 'guests as attending_count' => fn ($query) => $query->where('status', 'attending'),
                 'guests as pending_count' => fn ($query) => $query->where('status', 'pending'),
             ])
@@ -76,7 +79,10 @@ class BirthdayInvitationController extends Controller
     public function show(BirthdayInvitation $invitation): Response
     {
         $this->authorize('view', $invitation);
-        $invitation->load(['guests' => fn ($query) => $query->orderBy('status')->orderBy('name')->orderBy('email')]);
+        $invitation->load([
+            'guests' => fn ($query) => $query->orderBy('status')->orderBy('name')->orderBy('email'),
+            'sendBatches' => fn ($query) => $query->latest('attempt_number'),
+        ])->loadCount('sendBatches');
 
         return Inertia::render('invitations/Show', [
             'invitation' => $this->invitationData($invitation),
@@ -86,7 +92,7 @@ class BirthdayInvitationController extends Controller
     public function edit(Request $request, BirthdayInvitation $invitation): Response
     {
         $this->authorize('update', $invitation);
-        $invitation->load('guests');
+        $invitation->load('guests')->loadCount('sendBatches');
 
         return Inertia::render('invitations/Edit', [
             ...$this->formData($request),
@@ -153,20 +159,42 @@ class BirthdayInvitationController extends Controller
             return back()->withErrors(['send' => 'Najpre aktivirajte javnu stranicu pozivnice, pa zatim pošaljite emailove.']);
         }
 
-        $count = $this->queueInvitations($invitation);
+        $batch = $this->queueInvitations($invitation);
 
-        return back()->with('success', "Pozivnice su stavljene u red za {$count} gostiju.");
+        return back()->with('success', "Slanje {$batch->attempt_number}/3 je pokrenuto za {$batch->recipient_count} gostiju.");
     }
 
-    private function queueInvitations(BirthdayInvitation $invitation): int
+    private function queueInvitations(BirthdayInvitation $invitation): BirthdayInvitationSendBatch
     {
-        $invitation->loadMissing('guests');
+        $batch = DB::transaction(function () use ($invitation): BirthdayInvitationSendBatch {
+            $lockedInvitation = BirthdayInvitation::query()->lockForUpdate()->findOrFail($invitation->id);
+            $attemptNumber = $lockedInvitation->sendBatches()->count() + 1;
+            $recipientCount = $lockedInvitation->guests()->count();
 
-        foreach ($invitation->guests as $guest) {
-            SendBirthdayInvitationEmail::dispatch($guest->id);
-        }
+            if ($attemptNumber > 3) {
+                throw ValidationException::withMessages([
+                    'send' => 'Pozivnica je već poslata maksimalna 3 puta.',
+                ]);
+            }
 
-        return $invitation->guests->count();
+            if ($recipientCount === 0) {
+                throw ValidationException::withMessages([
+                    'send' => 'Dodajte najmanje jednog gosta pre slanja pozivnice.',
+                ]);
+            }
+
+            return $lockedInvitation->sendBatches()->create([
+                'attempt_number' => $attemptNumber,
+                'recipient_count' => $recipientCount,
+                'queued_at' => now(),
+            ]);
+        });
+
+        $invitation->guests()->pluck('id')->each(
+            fn (int $guestId) => SendBirthdayInvitationEmail::dispatch($guestId, $batch->id),
+        );
+
+        return $batch;
     }
 
     private function formData(Request $request): array
@@ -195,6 +223,7 @@ class BirthdayInvitationController extends Controller
                 ? Storage::disk('public')->url($invitation->background_image_path)
                 : asset($invitation->template->backgroundPath()),
             'public_url' => route('invitations.public', $invitation->public_token),
+            'max_send_attempts' => 3,
         ];
     }
 }

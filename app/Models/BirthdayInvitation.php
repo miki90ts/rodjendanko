@@ -58,4 +58,9 @@ class BirthdayInvitation extends Model
     {
         return $this->hasMany(BirthdayInvitationGuest::class);
     }
+
+    public function sendBatches(): HasMany
+    {
+        return $this->hasMany(BirthdayInvitationSendBatch::class);
+    }
 }

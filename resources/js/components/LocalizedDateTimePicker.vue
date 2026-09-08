@@ -26,7 +26,9 @@ const date = computed({
 const time = computed({
     get: () => model.value?.slice(11, 16) ?? '',
     set: (value: string) => {
-        if (date.value) model.value = `${date.value}T${value}`;
+        if (date.value) {
+            model.value = `${date.value}T${value}`;
+        }
     },
 });
 </script>

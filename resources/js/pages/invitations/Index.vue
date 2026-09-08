@@ -58,14 +58,24 @@ defineOptions({
                     >
                         <div class="flex h-full items-end p-5">
                             <div>
-                                <span
-                                    class="rounded-full bg-white/90 px-2.5 py-1 text-xs font-bold text-violet-700"
-                                    >{{
-                                        invitation.is_published
-                                            ? 'Aktivna'
-                                            : 'Skica'
-                                    }}</span
-                                >
+                                <div class="flex flex-wrap gap-2">
+                                    <span
+                                        class="rounded-full bg-white/90 px-2.5 py-1 text-xs font-bold text-violet-700"
+                                        >{{
+                                            invitation.is_published
+                                                ? 'Aktivna'
+                                                : 'Skica'
+                                        }}</span
+                                    >
+                                    <span
+                                        class="rounded-full bg-slate-950/70 px-2.5 py-1 text-xs font-bold text-white"
+                                    >
+                                        Poslato
+                                        {{
+                                            invitation.send_batches_count ?? 0
+                                        }}/3
+                                    </span>
+                                </div>
                                 <h2 class="mt-3 text-2xl font-black text-white">
                                     {{ invitation.title }}
                                 </h2>

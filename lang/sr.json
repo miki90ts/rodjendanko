@@ -5,5 +5,19 @@
     "The given data was invalid.": "Uneti podaci nisu ispravni.",
     "Unauthenticated.": "Morate biti prijavljeni.",
     "This action is unauthorized.": "Nemate dozvolu za ovu radnju.",
-    "Too Many Attempts.": "Previše pokušaja. Pokušajte ponovo kasnije."
+    "Too Many Attempts.": "Previše pokušaja. Pokušajte ponovo kasnije.",
+    "The provided password was incorrect.": "Uneta lozinka nije ispravna.",
+    "The provided two factor authentication code was invalid.": "Kod za potvrdu u dva koraka nije ispravan.",
+    "The provided two factor recovery code was invalid.": "Rezervni kod za potvrdu u dva koraka nije ispravan.",
+    "The :attribute must be at least :length characters.": "Polje :attribute mora imati najmanje :length znakova.",
+    "The :attribute must be at least :length characters and contain at least one uppercase character.": "Polje :attribute mora imati najmanje :length znakova i najmanje jedno veliko slovo.",
+    "The :attribute must be at least :length characters and contain at least one number.": "Polje :attribute mora imati najmanje :length znakova i najmanje jedan broj.",
+    "The :attribute must be at least :length characters and contain at least one special character.": "Polje :attribute mora imati najmanje :length znakova i najmanje jedan specijalan znak.",
+    "The :attribute must be at least :length characters and contain at least one uppercase character and one number.": "Polje :attribute mora imati najmanje :length znakova, jedno veliko slovo i jedan broj.",
+    "The :attribute must be at least :length characters and contain at least one uppercase character and one special character.": "Polje :attribute mora imati najmanje :length znakova, jedno veliko slovo i jedan specijalan znak.",
+    "The :attribute must be at least :length characters and contain at least one uppercase character, one number, and one special character.": "Polje :attribute mora imati najmanje :length znakova, veliko slovo, broj i specijalan znak.",
+    "The :attribute must be at least :length characters and contain at least one special character and one number.": "Polje :attribute mora imati najmanje :length znakova, broj i specijalan znak.",
+    "Invalid credential format.": "Format pristupnog ključa nije ispravan.",
+    "Passkey verification session expired. Please try again.": "Sesija za proveru pristupnog ključa je istekla. Pokušajte ponovo.",
+    "Passkey registration session expired. Please try again.": "Sesija za dodavanje pristupnog ključa je istekla. Pokušajte ponovo."
 }

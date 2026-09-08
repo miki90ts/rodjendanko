@@ -24,10 +24,15 @@ const picker = useTemplateRef<HTMLInputElement>('picker');
 const formatted = computed(() => model.value?.slice(0, 5) ?? '');
 
 const openPicker = (): void => {
-    if (!picker.value) return;
+    if (!picker.value) {
+        return;
+    }
 
-    if ('showPicker' in picker.value) picker.value.showPicker();
-    else picker.value.click();
+    try {
+        picker.value.showPicker();
+    } catch {
+        picker.value.click();
+    }
 };
 </script>
 
@@ -37,6 +42,7 @@ const openPicker = (): void => {
             type="button"
             class="field flex w-full cursor-pointer items-center gap-3 text-left disabled:cursor-not-allowed disabled:opacity-60"
             :disabled="disabled"
+            :aria-required="required"
             @click="openPicker"
         >
             <Clock3 class="size-4 shrink-0 text-violet-500" />
@@ -51,7 +57,6 @@ const openPicker = (): void => {
             lang="sr-Latn-RS"
             type="time"
             :disabled="disabled"
-            :required="required"
             :step="step"
             class="pointer-events-none absolute inset-0 size-full opacity-0"
             tabindex="-1"

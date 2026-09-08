@@ -17,6 +17,7 @@ class BirthdayInvitationGuest extends Model
         'message',
         'responded_at',
         'sent_at',
+        'send_count',
     ];
 
     protected function casts(): array
@@ -26,6 +27,7 @@ class BirthdayInvitationGuest extends Model
             'party_size' => 'integer',
             'responded_at' => 'datetime',
             'sent_at' => 'datetime',
+            'send_count' => 'integer',
         ];
     }
 

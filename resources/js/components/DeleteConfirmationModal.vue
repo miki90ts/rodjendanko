@@ -53,11 +53,16 @@ const emit = defineEmits<{ confirm: [] }>();
             </div>
             <DialogFooter class="gap-2 border-t bg-white p-5 dark:bg-slate-950">
                 <DialogClose as-child>
-                    <Button variant="secondary" :disabled="processing">
+                    <Button
+                        type="button"
+                        variant="secondary"
+                        :disabled="processing"
+                    >
                         Odustani
                     </Button>
                 </DialogClose>
                 <Button
+                    type="button"
                     variant="destructive"
                     :disabled="processing"
                     class="cursor-pointer gap-2"

@@ -11,7 +11,9 @@ import {
     Users,
 } from '@lucide/vue';
 import { computed, ref, watch } from 'vue';
+import DeleteConfirmationModal from '@/components/DeleteConfirmationModal.vue';
 import InputError from '@/components/InputError.vue';
+import ResendInvitationModal from '@/components/invitations/ResendInvitationModal.vue';
 import LocalizedDatePicker from '@/components/LocalizedDatePicker.vue';
 import LocalizedDateTimePicker from '@/components/LocalizedDateTimePicker.vue';
 import type {
@@ -26,6 +28,8 @@ const props = defineProps<{
     timezones: string[];
     defaults: { host_name: string; timezone: string };
 }>();
+
+type EditableGuest = Pick<InvitationGuest, 'name' | 'email'> & { id?: number };
 
 const toDateTimeInput = (
     value: string | null | undefined,
@@ -86,14 +90,24 @@ const form = useForm({
     send_now: !props.invitation,
     guests:
         props.invitation?.guests?.map((guest) => ({
+            id: guest.id,
             name: guest.name ?? '',
             email: guest.email,
-        })) ?? ([] as Pick<InvitationGuest, 'name' | 'email'>[]),
+        })) ?? ([] as EditableGuest[]),
 });
 
 const guestInput = ref('');
 const customImagePreview = ref<string | null>(null);
 const locationMessage = ref('');
+const resendModalOpen = ref(false);
+const sendAttempts = computed(() => props.invitation?.send_batches_count ?? 0);
+const sendLimitReached = computed(() => sendAttempts.value >= 3);
+const guestToDeleteIndex = ref<number | null>(null);
+const sendError = computed(
+    () =>
+        form.errors.send_now ??
+        (form.errors as Record<string, string | undefined>).send,
+);
 
 watch(
     () => form.is_published,
@@ -114,6 +128,29 @@ const backgroundPreview = computed(
         props.invitation?.background_url ??
         selectedTemplate.value?.background_url,
 );
+
+const toggleSendNow = (): void => {
+    if (form.send_now) {
+        form.send_now = false;
+
+        return;
+    }
+
+    if (sendLimitReached.value || !form.is_published) {
+        return;
+    }
+
+    if (sendAttempts.value > 0) {
+        resendModalOpen.value = true;
+    } else {
+        form.send_now = true;
+    }
+};
+
+const confirmResendAfterSave = (): void => {
+    form.send_now = true;
+    resendModalOpen.value = false;
+};
 
 const addGuests = (): void => {
     const entries = guestInput.value
@@ -138,7 +175,24 @@ const addGuests = (): void => {
 };
 
 const removeGuest = (index: number): void => {
+    const guest = form.guests[index];
+
+    if (props.invitation && guest?.id) {
+        guestToDeleteIndex.value = index;
+
+        return;
+    }
+
     form.guests.splice(index, 1);
+};
+
+const confirmRemoveGuest = (): void => {
+    if (guestToDeleteIndex.value === null) {
+        return;
+    }
+
+    form.guests.splice(guestToDeleteIndex.value, 1);
+    guestToDeleteIndex.value = null;
 };
 
 const chooseBackground = (event: Event): void => {
@@ -684,19 +738,27 @@ const submit = (): void => {
                     >
                     <label class="mt-4 flex items-center gap-3"
                         ><input
-                            v-model="form.send_now"
+                            :checked="form.send_now"
                             type="checkbox"
-                            :disabled="!form.is_published"
+                            :disabled="!form.is_published || sendLimitReached"
                             class="size-4 accent-violet-600"
+                            @click.prevent="toggleSendNow"
                         /><span
-                            ><strong class="block text-sm"
-                                >Pošalji emailove odmah</strong
-                            ><span class="text-xs text-slate-500"
-                                >Emailovi se stavljaju u red nakon
-                                čuvanja.</span
-                            ></span
+                            ><strong class="block text-sm">{{
+                                sendLimitReached
+                                    ? 'Dostignut je limit od 3 slanja'
+                                    : sendAttempts
+                                      ? `Pošalji ponovo nakon čuvanja (${sendAttempts}/3)`
+                                      : 'Pošalji emailove odmah'
+                            }}</strong
+                            ><span class="text-xs text-slate-500">{{
+                                sendLimitReached
+                                    ? 'Pozivnica se više ne može slati.'
+                                    : 'Emailovi se stavljaju u red nakon čuvanja.'
+                            }}</span></span
                         ></label
                     >
+                    <InputError :message="sendError" />
                     <button
                         class="btn-primary mt-5 h-12 w-full"
                         :disabled="form.processing || !form.guests.length"
@@ -722,5 +784,19 @@ const submit = (): void => {
                 </section>
             </div>
         </div>
+        <ResendInvitationModal
+            v-model="resendModalOpen"
+            :previous-attempts="sendAttempts"
+            :guest-count="form.guests.length"
+            @confirm="confirmResendAfterSave"
+        />
+        <DeleteConfirmationModal
+            :model-value="guestToDeleteIndex !== null"
+            title="Ukloni gosta iz pozivnice?"
+            :description="`Gost „${guestToDeleteIndex !== null ? form.guests[guestToDeleteIndex]?.name || form.guests[guestToDeleteIndex]?.email : ''}“ biće uklonjen kada sačuvaš izmene.`"
+            confirm-label="Ukloni gosta"
+            @update:model-value="(open) => !open && (guestToDeleteIndex = null)"
+            @confirm="confirmRemoveGuest"
+        />
     </form>
 </template>

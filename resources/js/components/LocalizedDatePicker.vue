@@ -30,10 +30,15 @@ const formatted = computed(() => {
 });
 
 const openPicker = (): void => {
-    if (!picker.value) return;
+    if (!picker.value) {
+        return;
+    }
 
-    if ('showPicker' in picker.value) picker.value.showPicker();
-    else picker.value.click();
+    try {
+        picker.value.showPicker();
+    } catch {
+        picker.value.click();
+    }
 };
 </script>
 
@@ -43,6 +48,7 @@ const openPicker = (): void => {
             type="button"
             class="field flex w-full cursor-pointer items-center gap-3 text-left disabled:cursor-not-allowed disabled:opacity-60"
             :disabled="disabled"
+            :aria-required="required"
             @click="openPicker"
         >
             <CalendarDays class="size-4 shrink-0 text-violet-500" />
@@ -57,7 +63,6 @@ const openPicker = (): void => {
             lang="sr-Latn-RS"
             type="date"
             :disabled="disabled"
-            :required="required"
             :min="min"
             :max="max"
             class="pointer-events-none absolute inset-0 size-full opacity-0"
